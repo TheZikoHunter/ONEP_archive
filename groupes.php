@@ -105,7 +105,11 @@ if(isset($_POST['groupe_ajoute']) && !empty($_POST['groupe_ajoute'])) {
         <a href="/champs.php">Champs</a>
 
         </nav>
-            
+        <form action="" method="post" style="height: fit-content; width: fit-content; position:absolute; top:25%;)">
+            <button name="logout" value="clear" style="z-index:5;position:absolute; background:none; border:none; height:fit-content;width:fit-content; cursor: pointer;">
+                <img src="logout.gif" alt="" style="height:50px; width: 50px">
+            </button>
+        </form>
         
     </header>
     <div class="container">

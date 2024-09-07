@@ -1,6 +1,5 @@
 
 <?php
-session_start();
 require_once 'connect.php';
 
 $min_visual = 1; $max_visual = ($pdo -> query("SELECT MAX(num_polis) as max FROM polis") -> fetch())['max']; //In this case dispo = visualised
@@ -170,6 +169,7 @@ if(isset($_POST['clear'])){
 </head>
 <body>
 <header>
+        
         <?php
 
         $periodique = array(
@@ -180,6 +180,11 @@ if(isset($_POST['clear'])){
             "percentage" => ""
         );
         ?>
+        <form action="" method="post" style="height: fit-content; width: fit-content; position:absolute; top:25%;)">
+            <button name="logout" value="clear" style="z-index:5;position:absolute; background:none; border:none; height:fit-content;width:fit-content; cursor: pointer;">
+                <img src="logout.gif" alt="" style="height:50px; width: 50px">
+            </button>
+        </form>
         <div class="head">
             <h1>Office National de L'Electricité et de l'Eau Potable</h1>
             <div class="line"></div>

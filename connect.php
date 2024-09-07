@@ -1,4 +1,5 @@
 <?php
+session_start();
 // Path to your SQLite database file
 
 $databasePath = 'archive.db';
@@ -11,21 +12,10 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-    $createTableQuery = "
-        CREATE TABLE IF NOT EXISTS polis(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            num_polis INTEGER NOT NULL,
-            date_creation DATE,
-            groupe INTEGER NOT NULL,
-            champ INTEGER NOT NULL);
-    ";
-
-    // Execute the create table query
-    $pdo->exec($createTableQuery);
 
 } catch (PDOException $e) {
     // Handle any connection errors
-    echo "Failed to connect to the SQLite database: " . $e->getMessage();
+   
 }
 
 // Now we define the meta data to work with
@@ -53,5 +43,14 @@ $enchain = $pdo -> query("SELECT * FROM meta ") -> fetch();
 
 
 
-
+if(!isset($_SESSION['loged'])){
+    require_once 'auto.php';
+    exit;
+}
+elseif(isset($_POST['logout'])){
+    unset($_SESSION['loged']);
+    session_destroy();
+    require_once 'auto.php';
+    exit;
+}
 ?>

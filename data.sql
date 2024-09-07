@@ -29,3 +29,9 @@ taille_groupe INT,
 taille_champ INT,
 first_date INT
 );
+
+CREATE TABLE user(
+user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+username VARCHAR(255),
+motdepasse VARCHAR(255)
+);

@@ -16,6 +16,11 @@ require_once 'connect.php';
     if(!empty($enchain)):
         ?>
     <header>
+        <form action="" method="post" style="height: fit-content; width: fit-content; position:absolute; top:25%;)">
+            <button name="logout" value="clear" style="position:absolute; background:none; border:none; height:fit-content;width:fit-content; cursor: pointer;">
+                <img src="logout.gif" alt="" style="height:50px; width: 50px">
+            </button>
+        </form>
         <div class="head">
         <h1>Office National de L'Electricité et de l'Eau Potable</h1>
         <div class="line"></div>

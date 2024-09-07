@@ -1,7 +1,43 @@
 <?php
-session_start();
-require_once 'connect.php';
+/**
+ * Le cas d'un nouveau utilisateur
+ */
+$user_check = $pdo -> query("SELECT 1 FROM user") -> fetch();
+if(isset($_POST['new_username']) && !empty($_POST['new_username']) && empty($user_check)){
+    $insert_admin = $pdo -> prepare("INSERT INTO user (username, motdepasse) VALUES (:username, :password)");
+    
+    $insert_admin -> execute([
+        ':username' => $_POST['new_username'],
+        ':password' => password_hash($_POST['new_password'], PASSWORD_DEFAULT)
+    ]);
+    $_SESSION['loged'] = $_POST['new_username'];
+    header("Location: /index.php");
+}
 
+/**
+ * Valider une connexion
+ */
+if(isset($_POST['username']) && !empty($_POST['username'])){
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    $verify_exists = $pdo -> query("SELECT 1 FROM user WHERE username = '$username'") -> fetch();
+
+    if(empty($verify_exists)){
+        echo 'User not found !';
+    }else{
+        $hash = ($pdo -> query("SELECT motdepasse FROM user WHERE username = '$username'") -> fetch())['motdepasse'];
+        if(!password_verify($password, $hash)){
+            echo 'Mot de passe incorrecte !!';
+        }else{
+            $_SESSION['loged'] = $username;
+            header("Location: /index.php");
+        }
+    }
+
+}
+/**
+ * Le choix de dialog
+ */
 $user_check = $pdo -> query("SELECT 1 FROM user") -> fetch();
 $operation = array();
 if(empty($user_check)){
@@ -9,36 +45,13 @@ if(empty($user_check)){
     $operation['button'] = 'Ajouter';
     $user_html = 'new_username';
     $pass_html = 'new_password';
-
-    $insert_admin = $pdo -> prepare("INSERT INTO user (username, motdepasse) VALUES (:username, :password)");
-    $insert_admin -> execute([
-        ':username' => $_POST['username'],
-        ':password' => password_hash($_POST['password'], PASSWORD_ARGON2I)
-    ]);
-
 }else{
     $operation['titre'] = 'Connexion';
     $operation['button'] = 'S\'authentifiez';
-    $username = $_POST['username'];
     $user_html = 'username';
     $pass_html = 'password';
-
-    $verify_exists = $pdo -> query("SELECT 1 FROM user WHERE username = '$username'") -> fetch();
-    if(empty($verify_exists)){
-        echo 'User not found !';
-    }else{
-        $hash = ($pdo -> query("SELECT motdepasse FROM user WHERE username = '$username'") -> fetch())['password'];
-
-        if(password_verify($password, $hash)){
-            $_SESSION['loged'] = $username;
-        }else{
-            echo 'Mot de passe incorrecte !!';
-        }
-    }
 }
-echo '<pre>';
-var_dump($_SESSION);
-echo '</pre>';
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">

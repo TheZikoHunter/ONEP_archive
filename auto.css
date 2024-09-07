@@ -207,6 +207,7 @@ article button{
     width: 200px;
     height: 50px;
     border-radius: 1em;
+    font-weight: 700;
 }
 article td{
     width: 200px;
