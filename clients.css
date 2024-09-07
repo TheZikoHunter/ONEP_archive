@@ -1,0 +1,357 @@
+*::selection{
+    background-color: rgb(235, 118, 83);
+    color: black;
+}
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    box-sizing: border-box;
+    line-height: 1;
+}
+header{
+    background-color: transparent;
+    width: 90%;
+    margin: 30px 0 10px 0;
+    position: relative;
+
+    border: 2px solid black;
+    border-radius: 5px;
+    justify-content: space-around;
+    box-shadow: 0 0 5px;
+    left: 50%;
+    transform: translate(-50%, 0);
+
+    color: white;
+    text-shadow: 1px 1px 20px;
+}
+header .head{
+    position: relative;
+    left: 50%;
+    transform: translate(-50%, 0);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    z-index: 3;
+}
+header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(0, 128, 96); /* Background for the container */
+    z-index: 2; /* Higher z-index to appear above .box */
+}
+header nav{
+    height: 30px;
+    width: 600px;
+    background-color: rgb(0, 128, 96);
+    position: absolute;
+    bottom: -30%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 1;
+
+    border: 2px solid black;
+    display: flex;
+    justify-content: space-around;
+    list-style: none;
+}
+header nav a{
+    position: relative;
+    text-decoration: none;
+    text-align: center;
+    color: white;
+    margin-right: 0;
+    margin-top: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background-color: rgb(0, 128, 96);
+    width: 100%;
+}
+header nav a:hover{
+    font-weight: 900;
+}
+header nav a *{
+    position: relative;
+    top: 50%;
+    transform: translate(0, 50%);
+}
+header nav a:hover{
+    background-color: rgb(2, 95, 72);
+}
+header *{
+    margin-right: 70px;
+}
+header h1{
+    position: relative;
+    text-align: center;
+    padding: 30px;
+    margin: 0 50px;
+}
+.line{
+    border-left: 1px solid white;
+    height: 60px;
+    width: 0;
+}
+
+.container{
+    position: relative;
+        box-shadow: 0 0 10px 5px;
+        background-color: white;
+        width: 90%;
+        border: 2px solid black;
+        padding: 50px;
+        left: 50%; 
+        transform: translate(-50%, 0);
+        margin: 50px 0 0 0;
+}
+
+footer{
+    background-color: rgb(0, 128, 96);
+    width: 90%;
+    margin: 20px 0 10px 0;
+    position: relative;
+    border: 2px solid black;
+    border-radius: 5px;
+    box-shadow: 0 0 5px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    color: white;
+    text-shadow: 1px 1px 20px;
+    padding: 20px;
+
+    z-index: 1;
+}
+footer .box{
+    display: flex;
+    align-items: center;
+}
+footer .head{
+    margin-left: 40px;
+}
+footer ul{
+    display: flex;
+    align-items: center;
+    list-style: none;
+
+
+    position: absolute;
+    right: 20px;
+
+    
+}
+footer li{
+    margin: 0 50px;
+    position: relative;
+}
+footer li a{
+    position: relative;
+    padding: 2px 10px;
+    display: flex;
+    align-items: center;
+}
+footer li p{
+    margin-left: 20px;
+}
+
+footer .line{
+    height: 40px;
+}
+footer a{
+    text-decoration: none;
+    color: white;
+    font-weight: 900;
+}
+footer img{
+    width: 30px;
+    height: 30px;
+}
+footer div:last-child{
+    text-align: center;
+}
+
+/*The consult area*/
+form.search{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+form.search button{
+    height: 50px;
+    width: 150px;
+    color: white;
+    font-weight: 900;
+    background-color: rgb(0, 128, 96);
+    border: 4px solid black;
+    cursor: pointer;
+    font-weight: 900;
+    font-size: large;
+}
+form.search button:hover{
+    background-color: rgb(2, 75, 56);
+}
+form.search input{
+    height: 50px;
+    width: 800px;
+    font-size: large;
+    text-align: center;
+    border: 4px solid black;
+}
+table{
+    width: 100%;
+    border-collapse: collapse;
+}
+tr{
+    position: relative;
+}
+th{
+    padding: 10px;
+    font-size: 40px;
+}
+td{
+    padding: 20px;
+}
+tbody button{
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    border: 3px solid black;
+    cursor: pointer;
+}
+table img{
+    height: 50px;
+    width: 50px;
+    box-sizing: border-box;
+    
+}
+table tr, table td{
+    border: 3px solid black;
+    text-align: center;
+    font-weight: 800;
+}
+tbody .edit-dialog{
+    display: none;
+    position: absolute;
+    border: 4px solid black;
+    background-color: rgba(2, 60, 83, 0.781);
+    z-index: 9999;
+    height: 60px;
+    width: 100%;
+    top: 50%;
+    left: 0;
+    transform: translate(0, -50%);
+    box-sizing: border-box;
+    box-shadow: 0 0 5px 5px rgb(1, 105, 83);
+}
+.edit-dialog form{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+.edit-dialog button{
+    height: 100%;
+    width: 150px;
+    color: white;
+    font-weight: 900;
+    background-color: rgb(0, 128, 96);
+    cursor: pointer;
+    font-weight: 900;
+    font-size: large;
+    position: relative;
+}
+.edit-dialog button:hover{
+    background-color: rgb(3, 83, 63);
+}
+.edit-dialog button.annuler{
+    background-color: rgb(87, 3, 3);
+}
+.edit-dialog button.annuler:hover{
+    background-color: rgb(54, 2, 2);
+}
+.edit-dialog input{
+    font-size: large;
+    text-align: center;
+}
+
+label{
+    color: white;
+    font-weight: 900;
+    font-size: 20px;
+    text-shadow: 0 0 5px black;
+}
+
+.search select{
+    height: 50px;
+    width: 200px;
+    background-color: rgb(0, 102, 128);
+    font-size: 18px;
+    font-weight: 800;
+    color: white;
+    text-align: center;
+    border: 4px solid black;
+    cursor: cell;
+}
+.search select:hover{
+    background-color: rgb(2, 79, 99);
+}
+.search label{
+    text-shadow: none;
+    color: black;
+}
+tbody tr:nth-child(even){
+    background-color: rgba(40, 145, 119, 0.479);
+}
+tbody tr:nth-child(odd){
+    background-color: rgba(0, 128, 96, 0.664);
+}
+
+.modal-overlay {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+    z-index: 10; /* Ensure it appears above everything */
+}
+
+.pagination{
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.pagination *{
+    float: left;
+    margin: 0 30px;
+}
+.pagination button{
+    height: 50px;
+    width: 150px;
+    color: white;
+    background-color: rgb(2, 79, 99);
+    font-weight: 900;
+    font-size: large;
+    border: 3px solid black;
+    border-radius: 1rem;
+    box-shadow: 0 0 5px 5px;
+
+    cursor: pointer;
+}
+
+.pagination button:hover{
+    background-color: rgb(1, 44, 54);
+}
+.pagination p{
+    font-size: larger;
+    font-weight: 900;
+    border: 3px solid black;
+    line-height: 1;
+    padding: 10px 15px;
+    border-radius: 50%;
+}

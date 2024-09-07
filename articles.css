@@ -1,0 +1,460 @@
+*::selection{
+    background-color: rgb(235, 118, 83);
+    color: black;
+}
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    box-sizing: border-box;
+    line-height: 1;
+    display: flex;
+    flex-direction: column;
+}
+header{
+    background-color: transparent;
+    width: 90%;
+    margin: 30px 0 10px 0;
+    position: relative;
+
+    border: 2px solid black;
+    border-radius: 5px;
+    justify-content: space-around;
+    box-shadow: 0 0 5px;
+    left: 50%;
+    transform: translate(-50%, 0);
+
+    color: white;
+    text-shadow: 1px 1px 20px;
+}
+header .head{
+    position: relative;
+    left: 50%;
+    transform: translate(-50%, 0);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    z-index: 3;
+}
+header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(0, 128, 96); /* Background for the container */
+    z-index: 2; /* Higher z-index to appear above .box */
+}
+header nav{
+    height: 30px;
+    width: 600px;
+    background-color: rgb(0, 128, 96);
+    position: absolute;
+    bottom: -30%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 1;
+
+    border: 2px solid black;
+    display: flex;
+    justify-content: space-around;
+    list-style: none;
+}
+header nav a{
+    position: relative;
+    text-decoration: none;
+    text-align: center;
+    color: white;
+    margin-right: 0;
+    margin-top: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background-color: rgb(0, 128, 96);
+    width: 100%;
+}
+header nav a:hover{
+    font-weight: 900;
+}
+header nav a *{
+    position: relative;
+    top: 50%;
+    transform: translate(0, 50%);
+}
+header nav a:hover{
+    background-color: rgb(2, 95, 72);
+}
+header *{
+    margin-right: 70px;
+}
+header h1{
+    position: relative;
+    text-align: center;
+    padding: 30px;
+    margin: 0 50px;
+}
+header .line{
+    border-left: 1px solid white;
+    height: 60px;
+    width: 0;
+}
+
+.container{
+    position: relative;
+        box-shadow: 0 0 10px 5px;
+        background-color: white;
+        width: 90%;
+        border: 2px solid black;
+        padding: 50px;
+
+        margin: 50px 0 0 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+}
+
+footer{
+    background-color: rgb(0, 128, 96);
+    width: 90%;
+    margin: 20px 0 10px 0;
+    position: relative;
+    border: 2px solid black;
+    border-radius: 5px;
+    box-shadow: 0 0 5px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    color: white;
+    text-shadow: 1px 1px 20px;
+    padding: 20px;
+
+
+}
+footer .box{
+    display: flex;
+    align-items: center;
+}
+footer .head{
+    margin-left: 40px;
+}
+footer ul{
+    display: flex;
+    align-items: center;
+    list-style: none;
+
+
+    position: absolute;
+    right: 20px;
+
+    
+}
+footer li{
+    margin: 0 50px;
+    position: relative;
+}
+footer li a{
+    position: relative;
+    padding: 2px 10px;
+    display: flex;
+    align-items: center;
+}
+footer li p{
+    margin-left: 20px;
+}
+
+footer .line{
+    height: 40px;
+}
+footer a{
+    text-decoration: none;
+    color: white;
+    font-weight: 900;
+}
+footer img{
+    width: 30px;
+    height: 30px;
+}
+footer div:last-child{
+    text-align: center;
+}
+
+.container ul{
+    width: 1200px;
+    list-style: none;
+
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+.container li{
+    position: relative;
+    
+}
+.folder img{
+    height: 230px;
+    width: 230px;
+}
+.empty-folder{
+    
+    opacity: .6;
+}
+.folder{
+    
+
+}
+
+.folder p{
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
+.folder h2{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+/*.folder-active:hover{
+    transform: scale(1.2);
+}*/
+.folder form{
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.folder .add img{
+    height: 50px;
+    width: 50px;
+}
+.add-dialog form{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+
+.add-dialog textarea, .edit-dialog textarea{
+    width: 90%;
+    height: 100px;
+    font-size: 20px;
+}
+
+form.edit{
+    
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+form{
+    height: 50px;
+    width: 50px;
+}
+button.edit-button img{
+    height: 50px;
+    width: 50px;
+}
+.add-dialog form, .edit-dialog form{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+
+/*EDITING ARTICLE*/
+.edit-dialog, .add-dialog{
+    display: none;
+    position: fixed;
+    z-index: 9999;
+
+    background-color: white;
+    box-shadow: 5px 5px 20px 5px rgb(5, 114, 96);
+
+    border: 1px solid black;
+    border-radius: .5rem;
+   
+    text-align: center;
+    font-size: larger;
+    
+    height: 600px;
+    width: 1000px;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+}
+.edit-dialog h1, .add-dialog h1{
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
+}
+img.exit-button{
+    position: absolute;
+    height: 60px;
+    width: 60px;
+    z-index: 20;
+    cursor: pointer;
+    right: 0;
+    top: 0;
+}
+.edit-dialog form, .add-dialog form{
+    position: relative;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+.input-area{
+    position: relative;
+    top: 40px;
+    width: 900px;
+    height: 70%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    border: 1px solid black;
+}
+.input-area select{
+    height: 50px;
+    font-size: large;
+    font-weight: 800;
+    text-align: center;
+    box-shadow: 0 0 20px 2px rgb(5, 114, 96);
+}
+.input-area select{
+    max-height: 150px; /* Adjust height as needed */
+    overflow: auto;
+    width: 200px;
+    box-sizing: border-box;
+}
+.input-area input, .add-dialog input{
+    width: 150px;
+    height: 50px;
+    background-color: white;
+    text-align: center;
+    font-size: large;
+}
+.submit{
+    width: 100%;
+}
+.submit button{
+    width: 95%;
+    height: 50px;
+    background-color: rgb(5, 114, 96);
+    color: white;
+    font-weight: 800;
+    font-size: large;
+    cursor: pointer;
+}
+
+.submit button:hover{
+    background-color: rgb(4, 66, 56);
+}
+.edit-dialog div.separation{
+    height: 100px;
+    width: 0;
+    border-left: 1px solid black;
+    position: relative;
+}
+.left, .right{
+    height: 80%;
+    width: 400px;
+    box-shadow: 0 0 50px 1px rgb(204, 204, 204);
+    border: 2px solid black;
+}
+.left{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+}
+.left textarea{
+    box-sizing: border-box;
+    width: 80%;
+    height: 200px;
+    padding: 60px 0;
+    text-align: center;
+    font-size: large;
+    box-shadow: 0 0 20px 2px rgb(5, 114, 96);
+}
+.right{
+    position: relative;
+    display: flex;
+}
+
+.all-table{
+    position: relative;
+    border: 1px solid black;
+    width: 90%;
+    height: 95%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow: scroll;
+    align-items: center;
+}
+tr.all-table{
+    position: inherit;
+    transform: inherit;
+    box-sizing: border-box;
+    border: 2px solid rgb(3, 124, 58);
+    box-shadow: 0 0 5px 5px grey;
+    width: 100%;
+    height: 150px;
+}
+.each-table{
+    position: relative;
+}
+tr.each-table{
+    border-collapse: collapse;
+}
+
+tr.separation{
+    height: 0;
+    width: 100%;
+    
+}
+tr.separation td{
+    border-bottom: 1px solid black;
+    width: 100%;
+}
+td.separation{
+    box-sizing: border-box;
+    width: 0;
+    border-left: 1px solid black;
+}
+.each-table input, .new-client input{
+    border-radius: 1rem;
+    text-align: center;
+}
+table.new-client{
+    position: relative;
+    border: 2px solid black;
+    border-radius: 1rem;
+    margin: auto;
+}
+
+.right-client{
+    position: relative;
+}
+.modal-overlay {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+    z-index: 10; /* Ensure it appears above everything */
+}

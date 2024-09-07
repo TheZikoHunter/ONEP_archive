@@ -1,0 +1,15 @@
+Initial configuration:
+-groupe size
+-champ size
+-oldest date
+---> Information for meta data table
+-Description
+
+
+<div class="paragraphe">
+                Le mode en champs visualise simplement les champs indépendament de leurs dates associées. Compatible pour des cas où on ne s'intéresse pas aux dates.
+                Chaque champ contient <span style="color:red"><?=$taille_champ ?></span> des groupes.
+            </div>
+
+
+            <?=(int)($pdo -> query("SELECT date_creation FROM polis WHERE num_polis ='$i'") -> fetch())['date_creation'] ?>
