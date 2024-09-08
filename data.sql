@@ -1,37 +1,36 @@
-CREATE TABLE polis(
-polis_id INTEGER PRIMARY KEY AUTOINCREMENT,
-num_polis INTEGER NOT NULL,
-date_creation INT,
-groupe INTEGER NOT NULL,
-champ INTEGER NOT NULL,
-description LONGTEXT,
-first_cin VARCHAR(100));
-
-CREATE TABLE client(
-client_id INTEGER PRIMARY KEY AUTOINCREMENT,
-cin VARCHAR(100),
-nom VARCHAR(255),
-prenom VARCHAR(255)
+CREATE TABLE polis (
+    polis_id INT AUTO_INCREMENT PRIMARY KEY,
+    num_polis INT NOT NULL,
+    date_creation INT,
+    groupe INT NOT NULL,
+    champ INT NOT NULL,
+    description LONGTEXT,
+    first_cin VARCHAR(100)
 );
 
-PRAGMA foreign_keys = ON;
-
-CREATE TABLE abonnement(
-polis_id INTEGER,
-client_id INTEGER,
-compteur INTEGER,
-FOREIGN KEY (polis_id) REFERENCES polis(id) ON DELETE CASCADE,
-FOREIGN KEY (client_id) REFERENCES client(id) ON DELETE CASCADE
+CREATE TABLE client (
+    client_id INT AUTO_INCREMENT PRIMARY KEY,
+    cin VARCHAR(100),
+    nom VARCHAR(255),
+    prenom VARCHAR(255)
 );
 
-CREATE TABLE meta(
-taille_groupe INT,
-taille_champ INT,
-first_date INT
+CREATE TABLE abonnement (
+    polis_id INT,
+    client_id INT,
+    compteur INT,
+    FOREIGN KEY (polis_id) REFERENCES polis(polis_id) ON DELETE CASCADE,
+    FOREIGN KEY (client_id) REFERENCES client(client_id) ON DELETE CASCADE
 );
 
-CREATE TABLE user(
-user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-username VARCHAR(255),
-motdepasse VARCHAR(255)
+CREATE TABLE meta (
+    taille_groupe INT,
+    taille_champ INT,
+    first_date INT
+);
+
+CREATE TABLE user (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255),
+    motdepasse VARCHAR(255)
 );

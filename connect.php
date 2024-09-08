@@ -1,25 +1,88 @@
 <?php
 session_start();
-// Path to your SQLite database file
 
-$databasePath = 'archive.db';
+$servername = "localhost";
+$username = "root";  // Nom d'utilisateur MySQL
+$password = "";      // Mot de passe MySQL
+$dbname = "archive_onep";
+
+// Créer la connexion
+$conn = new mysqli($servername, $username, $password);
+
+// Vérifier la connexion
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Vérifier si la base de données existe déjà
+$sql = "CREATE DATABASE IF NOT EXISTS $dbname";
+if ($conn->query($sql) !== TRUE) {
+    echo "Erreur lors de la création de la base de données: " . $conn->error;
+}
+
+// Fermer la connexion
+$conn->close();
 
 try {
-    // Create a new PDO instance and connect to the SQLite database
-    $pdo = new PDO("sqlite:" . $databasePath);
+    
+    $dsn = 'mysql:dbname=archive_onep;host=127.0.0.1';
+	$user = 'root';
+	$password = '';
+	
+	
 
-    // Set error mode to exception to handle errors more gracefully
+	$pdo = new PDO($dsn, $user, $password);
+
+    
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
 
 } catch (PDOException $e) {
     // Handle any connection errors
-   
+   echo $e -> getMessage();
 }
 
-// Now we define the meta data to work with
+$start = $pdo -> prepare("CREATE TABLE IF NOT EXISTS polis (
+    polis_id INT AUTO_INCREMENT PRIMARY KEY,
+    num_polis INT NOT NULL,
+    date_creation INT,
+    groupe INT NOT NULL,
+    champ INT NOT NULL,
+    description LONGTEXT,
+    first_cin VARCHAR(100)
+);
 
+CREATE TABLE IF NOT EXISTS client (
+    client_id INT AUTO_INCREMENT PRIMARY KEY,
+    cin VARCHAR(100),
+    nom VARCHAR(255),
+    prenom VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS abonnement (
+    polis_id INT,
+    client_id INT,
+    compteur INT,
+    FOREIGN KEY (polis_id) REFERENCES polis(polis_id) ON DELETE CASCADE,
+    FOREIGN KEY (client_id) REFERENCES client(client_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS meta(
+    taille_groupe INT,
+    taille_champ INT,
+    first_date INT
+);
+
+CREATE TABLE IF NOT EXISTS user(
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255),
+    motdepasse VARCHAR(255)
+);
+");
+
+$start -> execute();
+$start -> closeCursor();
 $meta = $pdo -> query("SELECT * FROM meta") -> fetchAll();
 
 if(!empty($meta)){

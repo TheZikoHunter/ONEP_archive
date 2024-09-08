@@ -23,11 +23,11 @@ if(isset($_POST['username']) && !empty($_POST['username'])){
     $verify_exists = $pdo -> query("SELECT 1 FROM user WHERE username = '$username'") -> fetch();
 
     if(empty($verify_exists)){
-        echo 'User not found !';
+        $reponse = 'inconnu';
     }else{
         $hash = ($pdo -> query("SELECT motdepasse FROM user WHERE username = '$username'") -> fetch())['motdepasse'];
         if(!password_verify($password, $hash)){
-            echo 'Mot de passe incorrecte !!';
+			$reponse = 'password invalid';
         }else{
             $_SESSION['loged'] = $username;
             header("Location: /index.php");
@@ -76,13 +76,19 @@ if(empty($user_check)){
             <?=$operation['titre'] ?>
         </h1>
         <form action="" method="post">
-            <table>
-                <tr>
+            <table style="position:relative">
+                <tr >
                     <td>
                         <label for="user">Nom d'utilisateur</label>
                     </td>
                     <td>
-                        <input type="text" name="<?=$user_html ?>" id="user" placeholder="Entrez un nom">
+                        <input type="text" name="<?=$user_html ?>" id="user" placeholder="Entrez un nom" <?php
+						if(isset($reponse) && $reponse === 'inconnu'){
+							echo ' style="border:3px solid red;"';
+						}
+						?>>
+						<?php if(isset($reponse) && $reponse === 'inconnu') { echo '<div style="color:red;font-weight:600; font-size:20px;position:absolute; width:300px; border: 1px solid black;
+						text-align:center;top:-70%; left:50%; transform:translate(-50%, -50%)">Utilisateur inconnu !</div>'; } ?>
                     </td>
                 </tr>
                 <tr>
@@ -90,7 +96,13 @@ if(empty($user_check)){
                         <label for="password">Mot de passe</label>
                     </td>
                     <td>
-                        <input type="password" name="<?=$pass_html ?>" id="password" placeholder="Mot de passe">
+                        <input type="password" name="<?=$pass_html ?>" id="password" placeholder="Mot de passe" <?php
+						if(isset($reponse) && $reponse === 'password invalid'){
+							echo ' style="border:3px solid red;"';
+						}
+						?>>
+						<?php if(isset($reponse) && $reponse === 'password invalid') { echo '<div style="color:red;font-weight:600; font-size:20px;position:absolute; width:300px; border: 1px solid black;
+						text-align:center; top:-70%; left:50%; transform:translate(-50%, -50%)">Mot de passe incorrect !</div>'; } ?>
                     </td>
                 </tr>
                 <tr>

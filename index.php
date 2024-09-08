@@ -142,7 +142,7 @@ require_once 'connect.php';
 <?php else: ?>
     <form action="" method="POST" class="meta">
     <div class="paragraphe">
-        Déterminer la valuer de début de l'enregistrement dans l'archive en vie réelle sachant que les polises vont toujours commencer à la valuer 1 !<br>
+        Déterminer la valuer de début de l'enregistrement dans l'archive en vie réelle sachant que les polises vont toujours commencer à la valeur 1 !<br>
         Cette valeur est non modifiable plus tard et est indisponsable pour le bon fonctionnement de l'application.
     </div>
     <div class="input-first-date">

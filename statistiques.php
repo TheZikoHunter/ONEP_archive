@@ -136,6 +136,7 @@ foreach($visual as $num => $state){
         unset($periodique);
     }
 }
+if(isset($type) && isset($start_index) && isset($end_index)){
 if(!isset($_COOKIE[$type . '_' . $start_index . '_' . $end_index]) && (isset($_POST['date_limits']) || isset($_POST['limits']))){
     setcookie(
         $type . '_' . $start_index . '_' . $end_index,
@@ -144,6 +145,7 @@ if(!isset($_COOKIE[$type . '_' . $start_index . '_' . $end_index]) && (isset($_P
         "/"
     );
     $current_stat = array($type . '_' . $start_index . '_' . $end_index, serialize($front));
+}
 }
 
 if(isset($_POST['clear'])){

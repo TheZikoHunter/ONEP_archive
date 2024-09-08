@@ -6,16 +6,16 @@ LEFT JOIN client c ON c.client_id = a.client_id
 LEFT JOIN polis p ON p.polis_id = a.polis_id") -> fetchAll();*/
 if(isset($_POST['to_edit']) && !empty($_POST['to_edit'])){
     $id = $_POST['to_edit'];
-    $new_nom =  ($_POST['nom'] ?? 'nom inconnu');
-    $new_prenom =  ($_POST['prenom'] ?? 'prenom inconnu');
-    $new_cin =  ($_POST['cin'] ?? 'client_' . $id);
+    $new_nom =  strtoupper($_POST['nom'] ?? 'NOM INCONNU');
+    $new_prenom =  ucwords($_POST['prenom'] ?? 'Prenom Inconnu');
+    $new_cin =  strtoupper($_POST['cin'] ?? 'client_' . $id);
     $edit = $pdo -> prepare("UPDATE client SET cin = :cin, nom = :nom, prenom = :prenom WHERE client_id = :id");
 
     $edit -> execute([
         ':id' => $id,
-        ':nom' =>  ($new_nom),
-        ':prenom' =>  ($new_prenom),
-        ':cin' =>  ($new_cin)
+        ':nom' =>  $new_nom,
+        ':prenom' =>  $new_prenom,
+        ':cin' =>  $new_cin
     ]);
 }
 $query = "SELECT c.client_id as client_id, compteur, num_polis, cin, nom, prenom, date_creation FROM abonnement a 
@@ -49,7 +49,7 @@ if(isset($_GET['by']) && !empty($_GET['by'])){
 $query .= $order;
 $offset = ((int)$page === 1) ? 0 : ((int)$page - 1) * 20;
 $limit = 20;
-$count = $query . ' LIMIT -1 OFFSET ' . $offset;
+$count = $query . ' LIMIT 5000000000 OFFSET ' . $offset;
 $query .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
 
 $rest = count($pdo -> query($count) -> fetchAll());
@@ -132,7 +132,7 @@ $abonnements = $pdo -> query($query) -> fetchAll();
                                     <button class="annuler exit-button">
                                         Annuler
                                     </button>
-                                    <button name="to_edit" value="<?=$abonnement['client_id'] ?>">
+                                    <button class="write">
                                         Enregistrer
                                     </button>
                                 <label for="cin_<?=$abonnement['cin'] ?>">CIN : </label>
@@ -141,6 +141,7 @@ $abonnements = $pdo -> query($query) -> fetchAll();
                                 <input id="nom_<?=$abonnement['nom'] ?>" type="text" value="<?=$abonnement['nom'] ?>" placeholder="Nom" name="nom" style="text-transform:uppercase">
                                 <label for="prenom_<?=$abonnement['prenom'] ?>">Prénom</label>
                                 <input type="prenom_<?=$abonnement['prenom'] ?>" value="<?=$abonnement['prenom'] ?>" placeholder="Prénom" name="prenom">
+								<input name="to_edit" value="<?=$abonnement['client_id'] ?>" hidden>
                             </form>
                         </div>
                 

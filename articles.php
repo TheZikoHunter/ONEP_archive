@@ -17,85 +17,113 @@ if(isset($_POST['date']) && !empty($_POST['date'])){
 }else{
     $date = date('Y');
 }
+/*
+Case for inserting a subscription
+*/
 if(isset($insert)){
+	/*Verifie si le polis existe déjà*/
     $polis_exists = $pdo -> query("SELECT 1 FROM polis WHERE num_polis = $insert") -> fetch();
+	/*
+	Debut insertion d'un polis ==========================================================
+	*/
     if(!($polis_exists)):
-    $groupe = intdiv((int)$insert -1, $taille_groupe) + 1;
-    $champ = intdiv((int)$insert -1, $taille_champ * $taille_groupe) + 1;
-    if(isset($_POST['description'])){
-        $description = $_POST['description'];
-    }else{
-        $description = 'Aucune description';
-    }
-    $query = $pdo -> prepare("INSERT INTO polis (num_polis, date_creation, groupe, champ, description, first_cin) VALUES (:num, :date, :groupe, :champ, :description, :cin)");
-    
+		//Si le polis n'existe pas definie le groupe et le champ et ajoute le nouveau polis
+		$groupe = intdiv((int)$insert -1, $taille_groupe) + 1;
+		$champ = intdiv((int)$insert -1, $taille_champ * $taille_groupe) + 1;
+		
+		if(isset($_POST['description'])){
+			//On ajoute une description si entrée
+			$description = $_POST['description'];
+		}else{
+			$description = 'Aucune description';
+		}
+		//Prepare la requette pour l'insertion
+		$query = $pdo -> prepare("INSERT INTO polis (num_polis, date_creation, groupe, champ, description, first_cin) VALUES (:num, :date, :groupe, :champ, :description, :cin)");
+		
+		//Si le cin est entre, choisie le, sinon, entre un client inconnu
+		if(isset($_POST['client_cin'])){
+			$cin = strtoupper($_POST['client_cin']);
+		}else{
+			$cin = 'CLIENT_' . $insert;
+		}
+		//execute la requette utilisant les nouvelles données
+		$query -> execute([
+			':num' => $insert,
+			':date' => $date,
+			':groupe' => $groupe,
+			':champ' => $champ,
+			':description' => $description,
+			':cin' => $cin
+		]);
+		/*
+		Insertion d'un nouveau client a la table client
+		*/
+		//Verifie si le client existe deja
+		$cin_existe = $pdo -> query("SELECT 1 FROM client WHERE cin = " . $pdo -> quote($cin)) -> fetch();
+		//Insérer/mettre-a-jour le client selon le resultat
+		if($cin_existe){
+			if(isset($_POST['nom'])){
+				$update = $pdo -> prepare("UPDATE client SET nom = :nom WHERE cin = :cin");
+				$update -> execute([
+					':nom' => strtoupper($_POST['nom']),
+					':cin' => $cin
+				]);
+			}
+			if(isset($_POST['prenom'])){
+				$update = $pdo -> prepare("UPDATE client SET prenom = :prenom WHERE cin = :cin");
+				$update -> execute([
+					':prenom' => ucwords($_POST['prenom']),
+					':cin' => $cin
+				]);
+			}
+		}else{
+			$insert_client = $pdo -> prepare("INSERT INTO client (cin, nom, prenom) VALUES (:cin, :nom, :prenom)");
 
-    if(isset($_POST['client_cin'])){
-        $cin = strtoupper($_POST['client_cin']);
-    }else{
-        $cin = 'CLIENT_' . $insert;
-    }
-    $query -> execute([
-        ':num' => $insert,
-        ':date' => $date,
-        ':groupe' => $groupe,
-        ':champ' => $champ,
-        ':description' => $description,
-        ':cin' => $cin
-    ]);
+			if(isset($_POST['nom']) && !empty($_POST['nom'])){
+				$nom = strtoupper($_POST['nom']);
+			}else{
+				$nom = 'NOM INCONNU';
+			}
+			if(isset($_POST['prenom']) && !empty($_POST['prenom'])){
+				$prenom = ucwords($_POST['prenom']);
+			}else{
+				$prenom = 'Prenom Inconnu';
+			}
+			$insert_client -> execute([
+				':cin' => $cin,
+				':nom' => $nom,
+				':prenom' => $prenom
+			]);
+		}
+		/*
+		Insertion d'une abonnement
+		*/
+		$compteur = 1;
+		$verify_abonnement = $pdo -> query("SELECT 1 FROM (SELECT c.client_id as client_id, compteur, num_polis, cin, nom, prenom, date_creation FROM abonnement a 
+			INNER JOIN polis p ON p.polis_id = a.polis_id 
+			INNER JOIN client c ON c.client_id = a.client_id) 
+			WHERE num_polis = '$insert' AND cin = '$cin'") -> fetch();
+			if(empty($verify_abonnement)){
+				$abonnement = $pdo -> prepare("INSERT INTO abonnement (compteur, polis_id, client_id) VALUES (:compt, :polis, :client)");
+				$abonnement -> execute([
+					':compt' => $compteur,
+					':polis' => ($pdo -> query("SELECT polis_id FROM polis WHERE num_polis = " . $pdo -> quote($insert)) -> fetch())['polis_id'],
+					':client' => ($pdo -> query("SELECT client_id FROM client INNER JOIN polis ON first_cin = cin where first_cin = " . $pdo -> quote($cin)) -> fetch())['client_id']
+				]);
+			}
+	endif;
+	/*
+	Fin insertion polis
+	*/
 
-    $cin_existe = $pdo -> query("SELECT 1 FROM client WHERE cin = " . $pdo -> quote($cin)) -> fetch();
-    if($cin_existe){
-        if(isset($_POST['nom'])){
-            $update = $pdo -> prepare("UPDATE client SET nom = :nom WHERE cin = :cin");
-            $update -> execute([
-                ':nom' => strtoupper($_POST['nom']),
-                ':cin' => $cin
-            ]);
-        }
-        if(isset($_POST['prenom'])){
-            $update = $pdo -> prepare("UPDATE client SET prenom = :prenom WHERE cin = :cin");
-            $update -> execute([
-                ':prenom' => ucwords($_POST['prenom']),
-                ':cin' => $cin
-            ]);
-        }
-    }else{
-        $insert_client = $pdo -> prepare("INSERT INTO client (cin, nom, prenom) VALUES (:cin, :nom, :prenom)");
 
-        if(isset($_POST['nom']) && !empty($_POST['nom'])){
-            $nom = strtoupper($_POST['nom']);
-        }else{
-            $nom = 'NOM INCONNU';
-        }
-        if(isset($_POST['prenom']) && !empty($_POST['prenom'])){
-            $prenom = ucwords($_POST['prenom']);
-        }else{
-            $prenom = 'Prenom Inconnu';
-        }
-        $insert_client -> execute([
-            ':cin' => $cin,
-            ':nom' => $nom,
-            ':prenom' => $prenom
-        ]);
-    }
-endif;
-$verify_abonnement = $pdo -> query("SELECT 1 FROM (SELECT c.client_id as client_id, compteur, num_polis, cin, nom, prenom, date_creation FROM abonnement a 
-        INNER JOIN polis p ON p.polis_id = a.polis_id 
-        INNER JOIN client c ON c.client_id = a.client_id) 
-        WHERE num_polis = '$value' AND cin = '$cin'") -> fetch();
-if(empty($verify_abonnement)){
-    $abonnement = $pdo -> prepare("INSERT INTO abonnement (compteur, polis_id, client_id) VALUES (:compt, :polis, :client)");
-    $abonnement -> execute([
-        ':compt' => $compteur,
-        ':polis' => ($pdo -> query("SELECT polis_id FROM polis WHERE num_polis = " . $pdo -> quote($value)) -> fetch())['polis_id'],
-        ':client' => ($pdo -> query("SELECT client_id FROM client INNER JOIN polis ON first_cin = cin where first_cin = " . $pdo -> quote($cin)) -> fetch())['client_id']
-    ]);
 }
-}
+/*
+Debut edition de polis ====================================================================================
+*/
 if(isset($_POST['article_edit'])){
     $value = $_POST['article_edit'];
-    
+    //Verifie si le polis esiste. Si oui, enchaine le travail de la mise-a-jour
     $verify = $pdo -> query("SELECT num_polis, description FROM polis WHERE num_polis = '$value'") -> fetch();
     if(!empty($verify)){
         $group = intdiv($value - 1, $taille_groupe) + 1;
@@ -103,28 +131,38 @@ if(isset($_POST['article_edit'])){
         $query = $pdo -> prepare('UPDATE polis SET date_creation = ' . $pdo -> quote($_POST['date']) . ', description =  ' . $pdo -> quote($_POST['description']) . ' WHERE num_polis = ' . $pdo -> quote($value));
         $query -> execute();
     }
+	/*
+	Ajoute d'un client de nouveau compteur
+	*/
     if(isset($_POST['cin']) && !empty($_POST['cin'])){
         $cin = $_POST['cin'];
+		//Verifie si le client de cin ajoute existe. Si non, on prepare l'ajoute
         $cin_existe = $pdo -> query("SELECT 1 FROM client WHERE cin = " . $pdo -> quote($cin)) -> fetch();
         if(!$cin_existe){
+			
             $insert_client = $pdo -> prepare("INSERT INTO client (cin, nom, prenom) VALUES (:cin, :nom, :prenom)");
-
-        if(isset($_POST['nom']) && !empty($_POST['nom'])){
-            $nom = strtoupper($_POST['nom']);
-        }else{
-            $nom = 'NOM INCONNU';
+			//Definir les info de clients selon les entres
+			if(isset($_POST['nom']) && !empty($_POST['nom'])){
+				$nom = strtoupper($_POST['nom']);
+			}else{
+				$nom = 'NOM INCONNU';
+			}
+			if(isset($_POST['prenom']) && !empty($_POST['prenom'])){
+				$prenom = ucwords($_POST['prenom']);
+			}else{
+				$prenom = 'Prenom Inconnu';
+			}
+			
+			//Execute la requette
+			$insert_client -> execute([
+				':cin' => $cin,
+				':nom' => $nom,
+				':prenom' => $prenom
+			]);
         }
-        if(isset($_POST['prenom']) && !empty($_POST['prenom'])){
-            $prenom = ucwords($_POST['prenom']);
-        }else{
-            $prenom = 'Prenom Inconnu';
-        }
-        $insert_client -> execute([
-            ':cin' => $cin,
-            ':nom' => $nom,
-            ':prenom' => $prenom
-        ]);
-        }
+		/*
+		Ajout d'un nouveau client associe au polis. Le cin actuel doit etre change
+		*/
         
         $new_client = $pdo -> prepare("UPDATE polis SET first_cin = :new_client WHERE num_polis = :polis");
         $new_client -> execute([
@@ -133,23 +171,25 @@ if(isset($_POST['article_edit'])){
         ]);
 
         /**
-         * Ajout de l'abonnement ==============================================================================================================================
+         * Ajout de l'abonnement nouvel
          */
-        /**
-         * Savoir le compteur actuel ==============================================================================================================================
-         */
+		
 
-        $compteur = (int)($pdo -> query("SELECT MAX(compteur) AS compteur
-        FROM (SELECT c.client_id as client_id, compteur, num_polis, cin, nom, prenom, date_creation FROM abonnement a 
-        INNER JOIN polis p ON p.polis_id = a.polis_id 
-        INNER JOIN client c ON c.client_id = a.client_id)
-        WHERE num_polis = '$value'") -> fetch())['compteur'] + 1;
-        $verify_abonnement = $pdo -> query("SELECT 1 FROM (SELECT c.client_id as client_id, compteur, num_polis, cin, nom, prenom, date_creation FROM abonnement a 
-        INNER JOIN polis p ON p.polis_id = a.polis_id 
-        INNER JOIN client c ON c.client_id = a.client_id) 
-        WHERE num_polis = '$value' AND cin = '$cin'") -> fetch();
+        
+		
+       
         if(empty($verify_abonnement)){
+			
+			//Savoir le compteur actuel
+			
+			$compteur = (int)($pdo -> query("SELECT MAX(compteur) AS compteur
+			FROM (SELECT c.client_id as client_id, compteur, num_polis, cin, nom, prenom, date_creation FROM abonnement a 
+			INNER JOIN polis p ON p.polis_id = a.polis_id 
+			INNER JOIN client c ON c.client_id = a.client_id)
+			WHERE num_polis = '$value'") -> fetch())['compteur'] + 1;
+			
             $abonnement = $pdo -> prepare("INSERT INTO abonnement (compteur, polis_id, client_id) VALUES (:compt, :polis, :client)");
+			//Execute la requette
             $abonnement -> execute([
                 ':compt' => $compteur,
                 ':polis' => ($pdo -> query("SELECT polis_id FROM polis WHERE num_polis = " . $pdo -> quote($value)) -> fetch())['polis_id'],
@@ -220,7 +260,8 @@ if(isset($_GET['annee']) && !empty($_GET['annee'])){
                     <div class="folder">
                         <?php
                         $info = $pdo -> query("SELECT num_polis, date_creation, first_cin, description FROM polis WHERE num_polis = " . $pdo -> quote($i)) -> fetch();
-                        $check = $info['num_polis'];
+						
+                        $check = (isset($info['num_polis'])) ? $info['num_polis'] : '';
                         if(empty($check)):
                             
                         ?>
@@ -333,7 +374,13 @@ if(isset($_GET['annee']) && !empty($_GET['annee'])){
                                                                     <td>
                                                                         <table class="each-table">
                                                                             <tr class="each-table">
-                                                                                <td>Entrer client N° <?=$compteur ?></td>
+                                                                                <td>Entrer client N° <?php
+																				$compteur = (int)($pdo -> query("SELECT MAX(compteur) AS compteur
+			FROM (SELECT c.client_id as client_id, compteur, num_polis, cin, nom, prenom, date_creation FROM abonnement a 
+			INNER JOIN polis p ON p.polis_id = a.polis_id 
+			INNER JOIN client c ON c.client_id = a.client_id)
+			WHERE num_polis = '$i'") -> fetch())['compteur'] + 1; 
+			echo $compteur; ?></td>
                                                                                 <td class="separation"></td>
                                                                                 <td><input type="text" name="cin" value="" style="text-transform:uppercase" placeholder="CIN"></td>
                                                                             </tr>
