@@ -23,7 +23,7 @@ if(isset($_POST['description'])){
         }
     }
     if(isset($_GET['mode']) && !empty($_GET['mode'])){
-        $choice = $_GET['choice'];
+        $choice = $_GET['mode'];
     }else{
         $_GET['mode']= 'champ';
     }

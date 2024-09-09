@@ -1,41 +1,53 @@
 <?php
 require_once 'connect.php';
 
-//Defining the variables
-
+/*
+Definir les variables
+*/
+//le polis unique
 if(isset($_POST['article']) && !empty($_POST['article'])){
     $insert = $_POST['article'];
 }
+//La date associée
 if(isset($_POST['date']) && !empty($_POST['date'])){
     $date = $_POST['date'];
 }else{
     $date = date('Y');
 }
+//Les limites de polises
 if(isset($_POST['article_min']) && !empty($_POST['article_min'])){
     $min = $_POST['article_min'];
     if(isset($_POST['article_max']) && !empty($_POST['article_max'])){
         $max = $_POST['article_max'];
     }else{
         $max = ($pdo -> query("SELECT MAX(num_polis) as max FROM polis") -> fetch())['max'];
-        if((int)$max === 0){
-            $max = 1;
-        }
     }
 }else{
     if(isset($_POST['article_max']) && !empty($_POST['article_max'])){
         $min = ($pdo -> query("SELECT MIN(num_polis) as min FROM polis") -> fetch())['min'];
-        if((int)$min === 0){
-            $min = 1;
-        }
         $max = $_POST['article_max'];
     }
 }
+if(isset($max) && isset($min)){
+	if((int)$max === 0){
+            $max = 1;
+        }
+	if((int)$min === 0){
+		$min = 1;
+	}
+}
+/*
+Elaboration de la requette unique =================================================================
+*/
 if(isset($insert)){
+	//variable de verification d'existance
     $polis_exists = $pdo -> query("SELECT 1 FROM polis WHERE num_polis = $insert") -> fetch();
     if(!($polis_exists)):
+	
     $groupe = intdiv((int)$insert -1, $taille_groupe) + 1;
     $champ = intdiv((int)$insert -1, $taille_champ * $taille_groupe) + 1;
-    if(isset($_POST['description'])){
+	
+    if(isset($_POST['description']) && !empty($_POST['description'])){
         $description = $_POST['description'];
     }else{
         $description = 'Aucune description';
@@ -54,26 +66,29 @@ if(isset($insert)){
         ':groupe' => $groupe,
         ':champ' => $champ,
         ':description' => $description,
-        ':cin' =>  ($cin)
+        ':cin' =>  $cin
     ]);
-
-    $cin_existe = $pdo -> query("SELECT 1 FROM client WHERE cin = " . $pdo -> quote( ($cin))) -> fetch();
+	//Verifier l'existance de client
+    $cin_existe = $pdo -> query("SELECT 1 FROM client WHERE cin = " . $pdo -> quote($cin)) -> fetch();
+	
     if($cin_existe){
-        if(isset($_POST['nom'])){
+		//Si il existe, on met à jour les infos si entrées
+        if(isset($_POST['nom']) && !empty($_POST['nom'])){
             $update = $pdo -> prepare("UPDATE client SET nom = :nom WHERE cin = :cin");
             $update -> execute([
-                ':nom' => ucwords($_POST['nom']),
-                ':cin' =>  ($cin)
+                ':nom' => strtoupper($_POST['nom']),
+                ':cin' =>  $cin
             ]);
         }
-        if(isset($_POST['prenom'])){
+        if(isset($_POST['prenom']) && !empty($_POST['prenom'])){
             $update = $pdo -> prepare("UPDATE client SET prenom = :prenom WHERE cin = :cin");
             $update -> execute([
                 ':prenom' => ucwords($_POST['prenom']),
-                ':cin' =>  ($cin)
+                ':cin' =>  $cin
             ]);
         }
     }else{
+		//Sinon on l'ajoute a nouveau
         $insert_client = $pdo -> prepare("INSERT INTO client (cin, nom, prenom) VALUES (:cin, :nom, :prenom)");
 
         if(isset($_POST['nom']) && !empty($_POST['nom'])){
@@ -87,24 +102,31 @@ if(isset($insert)){
             $prenom =  ('Prenom Inconnu');
         }
         $insert_client -> execute([
-            ':cin' => ($cin),
-            ':nom' => ($nom),
-            ':prenom' => ($prenom)
+            ':cin' => $cin,
+            ':nom' => $nom,
+            ':prenom' => $prenom
         ]);
     }
-endif;
-$abonnement = $pdo -> prepare("INSERT INTO abonnement (compteur, polis_id, client_id) VALUES (:compt, :polis, :client)");
-$abonnement -> execute([
-    ':compt' => 1,
-    ':polis' => ($pdo -> query("SELECT polis_id FROM polis WHERE num_polis = " . $pdo -> quote($insert)) -> fetch())['polis_id'],
-    ':client' => ($pdo -> query("SELECT client_id FROM client INNER JOIN polis ON first_cin = cin where first_cin = " . $pdo -> quote( ($cin))) -> fetch())['client_id']
-]);
+	//Ajouter une abonnement
+	$abonnement = $pdo -> prepare("INSERT INTO abonnement (compteur, polis_id, client_id) VALUES (:compt, :polis, :client)");
+	$abonnement -> execute([
+		':compt' => 1,
+		':polis' => ($pdo -> query("SELECT polis_id FROM polis WHERE num_polis = " . $pdo -> quote($insert)) -> fetch())['polis_id'],
+		':client' => ($pdo -> query("SELECT client_id FROM client INNER JOIN polis ON first_cin = cin where first_cin = " . $pdo -> quote($cin)) -> fetch())['client_id']
+	]);
+	endif;
+	
 }
-
+/*
+Fin requette unique =========================================================================
+*/
+/*
+Debut requette intervalle =========================================================================
+*/
 if(isset($min) && isset($max)){
     $query = $pdo -> prepare("INSERT INTO polis (num_polis, date_creation, groupe, champ, description, first_cin) VALUES (:num, :date, :groupe, :champ, :description, :cin)");
     $abonnement = $pdo -> prepare("INSERT INTO abonnement (compteur, polis_id, client_id) VALUES (:compt, :polis, :client)");
-    if(isset($_POST['description'])){
+    if(isset($_POST['description']) && !empty($_POST['description'])){
         $description = $_POST['description'];
     }else{
         $description = 'Aucune description';
@@ -114,35 +136,38 @@ if(isset($min) && isset($max)){
     }else{
         $date = date('Y');
     }
+	
     for($i = $min; $i <= $max; $i++){
         
         $polis_exists = $pdo -> query("SELECT 1 FROM polis WHERE num_polis = " . $pdo -> quote($i)) -> fetch();
         if(!$polis_exists){
             $groupe = intdiv((int)$i -1, $taille_groupe) + 1;
             $champ = intdiv((int)$i -1, $taille_champ * $taille_groupe) + 1;
-            $cin = 'client_' . $i;
-            $nom = 'nom inconnu';
-            $prenom = 'prenom inconnu';
+            $cin = 'CLIENT_' . $i;
+            $nom = 'NOM INCONNU';
+            $prenom = 'Prenom Inconnu';
             $query -> execute([
                 ':num' => $i,
                 ':date' => $date,
                 ':groupe' => $groupe,
                 ':champ' => $champ,
                 ':description' => $description,
-                ':cin' =>  ($cin)
+                ':cin' =>  $cin
             ]);
-            $insert_client = $pdo -> prepare("INSERT INTO client (cin, nom, prenom) VALUES ('$cin', '$nom', '$prenom')");
+            $insert_client = $pdo -> prepare("INSERT INTO client (cin, nom, prenom) VALUES (" . $pdo -> quote($cin) . ", " . $pdo -> quote($nom) . ", " . $pdo -> quote($prenom) . ")");
             $insert_client -> execute();
             $abonnement -> execute([
                 ':compt' => 1,
                 ':polis' => ($pdo -> query("SELECT polis_id FROM polis WHERE num_polis = " . $pdo -> quote($i)) -> fetch())['polis_id'],
-                ':client' => ($pdo -> query("SELECT client_id FROM client INNER JOIN polis ON first_cin = cin where first_cin = " . $pdo -> quote( ($cin))) -> fetch())['client_id']
+                ':client' => ($pdo -> query("SELECT client_id FROM client INNER JOIN polis ON first_cin = cin where first_cin = " . $pdo -> quote($cin)) -> fetch())['client_id']
             ]);
         }
         
     }
 }
-
+/*
+Fin reqeutte intervalle ============================
+*/
 ?>
 <!DOCTYPE html>
 <html lang="fr">

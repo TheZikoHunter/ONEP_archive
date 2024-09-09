@@ -1,37 +1,43 @@
 <?php 
 require_once 'connect.php';
-
-if(isset($_POST['article_supprime'])){
+/*
+Supprime un article
+*/
+if(isset($_POST['article_supprime']) && !empty($_POST['article_supprime'])){
     $query = $pdo -> prepare("DELETE FROM polis WHERE num_polis = :num");
     $delete = $query -> execute([
         ':num' => $_POST['article_supprime']
     ]);
-
 }
 
+/*
+Ajoute d'un article
+*/
 if(isset($_POST['article_add']) && !empty($_POST['article_add'])){
+	//Definir la variable $insert = le polis a ajouter
     $insert = $_POST['article_add'];
 }
-if(isset($_POST['date']) && !empty($_POST['date'])){
-    $date = $_POST['date'];
-}else{
-    $date = date('Y');
-}
 /*
-Case for inserting a subscription
+Elaboration de la requette
 */
-if(isset($insert)){
+if(isset($insert) && !empty($insert)){
 	/*Verifie si le polis existe déjà*/
     $polis_exists = $pdo -> query("SELECT 1 FROM polis WHERE num_polis = $insert") -> fetch();
 	/*
 	Debut insertion d'un polis ==========================================================
 	*/
-    if(!($polis_exists)):
-		//Si le polis n'existe pas definie le groupe et le champ et ajoute le nouveau polis
+    if(empty($polis_exists)):
+		//Definir une date de l'article si entree, sinon enregistrer la date d'aujourd'hui
+		if(isset($_POST['date']) && !empty($_POST['date'])){
+			$date = $_POST['date'];
+		}else{
+			$date = date('Y');
+		}
+		//Definir le groupe et le champ et ajoute le nouveau polis
 		$groupe = intdiv((int)$insert -1, $taille_groupe) + 1;
 		$champ = intdiv((int)$insert -1, $taille_champ * $taille_groupe) + 1;
-		
-		if(isset($_POST['description'])){
+		//Ajouter une descriptiion
+		if(isset($_POST['description']) && !empty($_POST['description'])){
 			//On ajoute une description si entrée
 			$description = $_POST['description'];
 		}else{
@@ -40,8 +46,8 @@ if(isset($insert)){
 		//Prepare la requette pour l'insertion
 		$query = $pdo -> prepare("INSERT INTO polis (num_polis, date_creation, groupe, champ, description, first_cin) VALUES (:num, :date, :groupe, :champ, :description, :cin)");
 		
-		//Si le cin est entre, choisie le, sinon, entre un client inconnu
-		if(isset($_POST['client_cin'])){
+		//Si le cin est entre, choisir le, sinon, entrer un client inconnu
+		if(isset($_POST['client_cin']) && !empty($_POST['client_cin'])){
 			$cin = strtoupper($_POST['client_cin']);
 		}else{
 			$cin = 'CLIENT_' . $insert;
@@ -62,14 +68,14 @@ if(isset($insert)){
 		$cin_existe = $pdo -> query("SELECT 1 FROM client WHERE cin = " . $pdo -> quote($cin)) -> fetch();
 		//Insérer/mettre-a-jour le client selon le resultat
 		if($cin_existe){
-			if(isset($_POST['nom'])){
+			if(isset($_POST['nom']) && !empty($_POST['nom'])){
 				$update = $pdo -> prepare("UPDATE client SET nom = :nom WHERE cin = :cin");
 				$update -> execute([
 					':nom' => strtoupper($_POST['nom']),
 					':cin' => $cin
 				]);
 			}
-			if(isset($_POST['prenom'])){
+			if(isset($_POST['prenom']) && !empty($_POST['prenom'])){
 				$update = $pdo -> prepare("UPDATE client SET prenom = :prenom WHERE cin = :cin");
 				$update -> execute([
 					':prenom' => ucwords($_POST['prenom']),
@@ -101,8 +107,8 @@ if(isset($insert)){
 		$compteur = 1;
 		$verify_abonnement = $pdo -> query("SELECT 1 FROM (SELECT c.client_id as client_id, compteur, num_polis, cin, nom, prenom, date_creation FROM abonnement a 
 			INNER JOIN polis p ON p.polis_id = a.polis_id 
-			INNER JOIN client c ON c.client_id = a.client_id) 
-			WHERE num_polis = '$insert' AND cin = '$cin'") -> fetch();
+			INNER JOIN client c ON c.client_id = a.client_id) AS subquery_alias
+			WHERE num_polis = " . $pdo -> quote($insert) . " AND cin = " . $pdo -> quote($cin)) -> fetch();
 			if(empty($verify_abonnement)){
 				$abonnement = $pdo -> prepare("INSERT INTO abonnement (compteur, polis_id, client_id) VALUES (:compt, :polis, :client)");
 				$abonnement -> execute([
@@ -113,7 +119,7 @@ if(isset($insert)){
 			}
 	endif;
 	/*
-	Fin insertion polis
+	Fin insertion polis ====================================================================================
 	*/
 
 
@@ -121,14 +127,22 @@ if(isset($insert)){
 /*
 Debut edition de polis ====================================================================================
 */
-if(isset($_POST['article_edit'])){
+if(isset($_POST['article_edit']) && !empty($_POST['article_edit'])){
     $value = $_POST['article_edit'];
-    //Verifie si le polis esiste. Si oui, enchaine le travail de la mise-a-jour
-    $verify = $pdo -> query("SELECT num_polis, description FROM polis WHERE num_polis = '$value'") -> fetch();
+    //Verifie si le polis existe. Si oui, enchaine le travail de la mise-a-jour
+    $verify = $pdo -> query("SELECT num_polis, description, date_creation FROM polis WHERE num_polis = " . $pdo -> quote($value)) -> fetch();
     if(!empty($verify)){
-        $group = intdiv($value - 1, $taille_groupe) + 1;
-        $description = $verify['description'];
-        $query = $pdo -> prepare('UPDATE polis SET date_creation = ' . $pdo -> quote($_POST['date']) . ', description =  ' . $pdo -> quote($_POST['description']) . ' WHERE num_polis = ' . $pdo -> quote($value));
+		if(isset($_POST['description']) && !empty($_POST['description'])){
+			$description = $_POST['description'];
+		}else{
+			$description = $verify['description'];
+		}
+		if(isset($_POST['date']) && !empty($_POST['date'])){
+			$date = $_POST['date'];
+		}else{
+			$date = $verify['date_creation'];
+		}
+        $query = $pdo -> prepare('UPDATE polis SET date_creation = ' . $pdo -> quote($date) . ', description =  ' . $pdo -> quote($description) . ' WHERE num_polis = ' . $pdo -> quote($value));
         $query -> execute();
     }
 	/*
@@ -138,7 +152,7 @@ if(isset($_POST['article_edit'])){
         $cin = $_POST['cin'];
 		//Verifie si le client de cin ajoute existe. Si non, on prepare l'ajoute
         $cin_existe = $pdo -> query("SELECT 1 FROM client WHERE cin = " . $pdo -> quote($cin)) -> fetch();
-        if(!$cin_existe){
+        if(empty($cin_existe)){
 			
             $insert_client = $pdo -> prepare("INSERT INTO client (cin, nom, prenom) VALUES (:cin, :nom, :prenom)");
 			//Definir les info de clients selon les entres
@@ -173,11 +187,6 @@ if(isset($_POST['article_edit'])){
         /**
          * Ajout de l'abonnement nouvel
          */
-		
-
-        
-		
-       
         if(empty($verify_abonnement)){
 			
 			//Savoir le compteur actuel
@@ -185,7 +194,7 @@ if(isset($_POST['article_edit'])){
 			$compteur = (int)($pdo -> query("SELECT MAX(compteur) AS compteur
 			FROM (SELECT c.client_id as client_id, compteur, num_polis, cin, nom, prenom, date_creation FROM abonnement a 
 			INNER JOIN polis p ON p.polis_id = a.polis_id 
-			INNER JOIN client c ON c.client_id = a.client_id)
+			INNER JOIN client c ON c.client_id = a.client_id) AS subquery
 			WHERE num_polis = '$value'") -> fetch())['compteur'] + 1;
 			
             $abonnement = $pdo -> prepare("INSERT INTO abonnement (compteur, polis_id, client_id) VALUES (:compt, :polis, :client)");
@@ -249,9 +258,9 @@ if(isset($_GET['annee']) && !empty($_GET['annee'])){
     <div class="modal-overlay"></div>
     <?php 
     /**
-     * Case for groupes ============================================================================================================================================
+     * Cas pour les groupes ============================================================================================================================================
      */
-    if(isset($_GET['groupe'])): ?>
+    if(isset($_GET['groupe']) && !empty($_GET['groupe'])): ?>
     <div class="container" style="height:fit-content">
         <ul>
             <?php 
@@ -261,69 +270,68 @@ if(isset($_GET['annee']) && !empty($_GET['annee'])){
                         <?php
                         $info = $pdo -> query("SELECT num_polis, date_creation, first_cin, description FROM polis WHERE num_polis = " . $pdo -> quote($i)) -> fetch();
 						
-                        $check = (isset($info['num_polis'])) ? $info['num_polis'] : '';
-                        if(empty($check)):
-                            
-                        ?>
-                    <div class="folder-empty">
-                        <img src="folder-empty.png" class="empty-folder">
-                        <h2><?=$i ?></h2>
-                        <form action="" method="POST">
-                            <button class="add add-button">
-                                <img src="add.gif">
-                            </button>
-                        </form>
-                        <?php 
-                        /**
-                         * Insert dialog
-                         */
-                        ?>
-                        <div class="add-dialog">
-                            <img src="exit.gif" class="exit-button">
-                            <h1><?=$i ?></h1>
-                            <form action="" method="POST">
-                                
-                                <div class="input-area">
-                                    <div class="left">
-                                    <select name="date" class="date">
-                                    <option value="<?=date('Y') ?>">Date</option>
-                                    <?php 
-                                        $date_debut = ($pdo -> query("SELECT first_date FROM meta") -> fetch())['first_date'];
-                                        for($j = (int)date('Y'); $j >= (int)$date_debut; $j--):
-                                    ?>
-                                    <option value="<?=$j ?>"><?=$j ?></option>
-                                            <?php endfor; ?>
-                                </select>
-                                    <textarea name="description" placeholder="Entrer une description, des informations supplémentaires. Cette section est modifiable."></textarea>
-                                    </div>
-                                    <div class="separation"></div>
-                                    <div class="right right-client">
-                                    <table class="new-client">
-                                            <tr class="new-client">
-                                                <td><b><i>Compteur : 1</i></b></td>
-                                                <td><input type="text" name="client_cin" placeholder="CIN" style="text-transform:uppercase"></td>
-                                            </tr>
-                                            
-                                            <tr class="new-client">
-                                                <td><input type="text" name="nom" value="" placeholder="Nom" style="text-transform:uppercase"></td>
-                                                <td><input type="text" name="prenom" value="" placeholder="Prénom"></td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                    
+                        $check = (isset($info['num_polis']) && !empty($info['num_polis'])) ? $info['num_polis'] : '';
+						//Cas pour un polis inexistant
+                        if(empty($check)): ?>
+							<div class="folder-empty">
+								<img src="folder-empty.png" class="empty-folder">
+								<h2><?=$i ?></h2>
+								<form action="" method="POST">
+									<button class="add add-button">
+										<img src="add.gif">
+									</button>
+								</form>
+								<?php 
+								/**
+								 * Insert dialog
+								 */
+								?>
+								<div class="add-dialog">
+									<img src="exit.gif" class="exit-button">
+									<h1><?=$i ?></h1>
+									<form action="" method="POST">
+										<div class="input-area">
+											<div class="left">
+												<select name="date" class="date">
+													<option value="<?=date('Y') ?>">Date</option>
+													<?php 
+														$date_debut = ($pdo -> query("SELECT first_date FROM meta") -> fetch())['first_date'];
+														for($j = (int)date('Y'); $j >= (int)$date_debut; $j--):
+													?>
+													<option value="<?=$j ?>"><?=$j ?></option>
+															<?php endfor; ?>
+												</select>
+												<textarea name="description" placeholder="Entrer une description, des informations supplémentaires. Cette section est modifiable."></textarea>
+											</div>
+											
+											<div class="separation"></div>
+											
+											<div class="right right-client">
+												<table class="new-client">
+													<tr class="new-client">
+														<td><b><i>Compteur : 1</i></b></td>
+														<td><input type="text" name="client_cin" placeholder="CIN" style="text-transform:uppercase"></td>
+													</tr>
+													
+													<tr class="new-client">
+														<td><input type="text" name="nom" value="" placeholder="Nom" style="text-transform:uppercase"></td>
+														<td><input type="text" name="prenom" value="" placeholder="Prénom"></td>
+													</tr>
+												</table>
+											</div>
+										</div>
 
-                                </div>
-
-                                
-                                <div class="submit">
-                                    <button class="done" name="article_add" value="<?=$i ?>">
-                                        Ajouter l'article
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+										<div class="submit">
+											<button class="done" name="article_add" value="<?=$i ?>">
+												Ajouter l'article
+											</button>
+										</div>
+										
+									</form>
+								</div>
                         
                         <?php
+						//Cas pour polis existant
                         else: ?>
                             <div class="folder-active">
                                 <img src="folder.png" class="active-folder">
@@ -354,80 +362,81 @@ if(isset($_GET['annee']) && !empty($_GET['annee'])){
                                     <img src="exit.gif" class="exit-button">
                                     <h1><?=$i ?></h1>
                                     <form action="" method="POST">
-                                        
-                                        <div class="input-area">
-                                            <div class="left">
-                                            <select name="date" class="date">
-                                                <option value="<?=$info['date_creation'] ?>"><?=$info['date_creation'] ?></option>
-                                                <?php 
-                                                    $date_debut = ($pdo -> query("SELECT first_date FROM meta") -> fetch())['first_date'];
-                                                    for($j = (int)date('Y'); $j >= (int)$date_debut; $j--): ?>
-                                                        <option value="<?=$j ?>"><?=$j ?></option>
-                                                    <?php endfor; ?>
-                                            </select>
-                                            <textarea name="description" placeholder="Entrer une description, des informations supplémentaires."><?=$info['description'] ?></textarea>
-                                            </div>
-                                            <div class="separation"></div>
-                                            <div class="right">
-                                                        <table class="all-table">
-                                                                <tr class="all-table">
-                                                                    <td>
-                                                                        <table class="each-table">
-                                                                            <tr class="each-table">
-                                                                                <td>Entrer client N° <?php
-																				$compteur = (int)($pdo -> query("SELECT MAX(compteur) AS compteur
-			FROM (SELECT c.client_id as client_id, compteur, num_polis, cin, nom, prenom, date_creation FROM abonnement a 
-			INNER JOIN polis p ON p.polis_id = a.polis_id 
-			INNER JOIN client c ON c.client_id = a.client_id)
-			WHERE num_polis = '$i'") -> fetch())['compteur'] + 1; 
-			echo $compteur; ?></td>
-                                                                                <td class="separation"></td>
-                                                                                <td><input type="text" name="cin" value="" style="text-transform:uppercase" placeholder="CIN"></td>
-                                                                            </tr>
-                                                                            <tr class="separation"><td></td><td></td><td></td></tr>
-                                                                            <tr class="each-table">
-                                                                                <td><input type="text" name="nom" value="" placeholder="Nom" style="text-transform:uppercase"></td>
-                                                                                <td class="separation"></td>
-                                                                                <td><input type="text" name="prenom" value="" placeholder="Prénom"></td>
-                                                                            </tr>
-                                                                        </table>
-                                                                    </td>
-                                                                </tr>
-                                                            <?php foreach($_clients AS $client): ?>
-                                                                <tr class="all-table">
-                                                                    <td>
-                                                                        <table class="each-table">
-                                                                            <tr class="each-table">
-                                                                                <td><?=$client['compteur'] ?></td>
-                                                                                <td class="separation"></td>
-                                                                                <td><input type="text"value="<?=$client['cin'] ?>" style="text-transform:uppercase;font-weight:bold;color:black" disabled></td>
-                                                                            </tr>
-                                                                            <tr class="separation"><td></td><td></td><td></td></tr>
-                                                                            <tr class="each-table">
-                                                                                <td><input type="text" value="<?=$client['nom'] ?>"style="text-transform:uppercase;font-weight:bold;color:black" disabled></td>
-                                                                                <td class="separation"></td>
-                                                                                <td><input type="text" value="<?=$client['prenom'] ?>" style="font-weight:bold;color:black" disabled></td>
-                                                                            </tr>
-                                                                        </table>
-                                                                    </td>
-                                                                </tr>
-                                                            <?php endforeach; ?>  
-                                                            
-                                                        </table>
-                                            </div>
-                                        </div>
-
-                                        
-                                        <div class="submit">
-                                            <button class="done" name="article_edit" value="<?=$i ?>">
-                                                Enregistrer
-                                            </button>
-                                        </div>
+										<div class="input-area">
+											<div class="left">
+												<select name="date" class="date">
+													<option value="<?=$info['date_creation'] ?>"><?=$info['date_creation'] ?></option>
+													<?php 
+														$date_debut = ($pdo -> query("SELECT first_date FROM meta") -> fetch())['first_date'];
+														for($j = (int)date('Y'); $j >= (int)$date_debut; $j--): ?>
+															<option value="<?=$j ?>"><?=$j ?></option>
+														<?php endfor; ?>
+												</select>
+												<textarea name="description" placeholder="Entrer une description, des informations supplémentaires."><?=$info['description'] ?></textarea>
+											</div>
+											
+											<div class="separation"></div>
+											
+											<div class="right">
+												<table class="all-table">
+													<tr class="all-table">
+														<td>
+															<table class="each-table">
+																<tr class="each-table">
+																	<td>Entrer client N° <?php
+																		$compteur = (int)($pdo -> query("SELECT MAX(compteur) AS compteur
+																										FROM (SELECT c.client_id as client_id, compteur, num_polis, cin, nom, prenom, date_creation FROM abonnement a 
+																										INNER JOIN polis p ON p.polis_id = a.polis_id 
+																										INNER JOIN client c ON c.client_id = a.client_id) AS subquery
+																										WHERE num_polis = '$i'") -> fetch())['compteur'] + 1; 
+																		echo $compteur; ?>
+																	</td>
+																	
+																	<td class="separation"></td>
+																	
+																	<td><input type="text" name="cin" value="" style="text-transform:uppercase" placeholder="CIN"></td>
+																</tr>
+																
+																<tr class="separation"><td></td><td></td><td></td></tr>
+																
+																<tr class="each-table">
+																	<td><input type="text" name="nom" value="" placeholder="Nom" style="text-transform:uppercase"></td>
+																	<td class="separation"></td>
+																	<td><input type="text" name="prenom" value="" placeholder="Prenom"></td>
+																</tr>
+															</table>
+														</td>
+													</tr>
+													<?php foreach($_clients AS $client): ?>
+													<tr class="all-table">
+														<td>
+															<table class="each-table">
+																<tr class="each-table">
+																	<td><?=$client['compteur'] ?></td>
+																	<td class="separation"></td>
+																	<td><input type="text" value="<?=$client['cin'] ?>" style="text-transform:uppercase;font-weight:bold;color:black" disabled></td>
+																</tr>
+																<tr class="separation"><td></td><td></td><td></td></tr>
+																<tr class="each-table">
+																	<td><input type="text" value="<?=$client['nom'] ?>"style="text-transform:uppercase;font-weight:bold;color:black" disabled></td>
+																	<td class="separation"></td>
+																	<td><input type="text" value="<?=$client['prenom'] ?>" style="font-weight:bold;color:black" disabled></td>
+																</tr>
+															</table>
+														</td>
+													</tr>
+													<?php endforeach; ?>
+												</table>
+											</div>
+										</div>
+										<div class="submit">
+											<button class="done" name="article_edit" value="<?=$i ?>">
+												Enregistrer
+											</button>
+										</div>
                                     </form>
                                 </div>
                             </div>
-                            
-                        
                         <?php endif; ?>
                     </div>
                 </li>
@@ -435,23 +444,23 @@ if(isset($_GET['annee']) && !empty($_GET['annee'])){
             endfor;
         
             ?>
-            </ul>
+        </ul>
     </div>
     <?php else: 
         /**
-     * Case for années ============================================================================================================================================
+     * Cas pour les années ============================================================================================================================================
      */
         ?>
-        <div class="container" style="height:fit-content">
+    <div class="container" style="height:fit-content">
         <ul>
-            <?php 
-            foreach($polis_all as $polis): ?>
-                <li>
-                    <div class="folder">
-                        <?php
-                        $info = $pdo -> query("SELECT num_polis, date_creation FROM polis WHERE num_polis = " . $pdo -> quote($polis['num_polis'])) -> fetch();
-                        $check = $info['num_polis'];
-                        $date = $info['date_creation']; ?>
+		<?php 
+		foreach($polis_all as $polis): ?>
+			<li>
+				<div class="folder">
+				<?php
+				$info = $pdo -> query("SELECT num_polis, date_creation, description FROM polis WHERE num_polis = " . $pdo -> quote($polis['num_polis'])) -> fetch();
+				$check = $info['num_polis'];
+				$date = $info['date_creation']; ?>
                             <div class="folder-active">
                                 <img src="folder.png" class="active-folder">
                                 <h2><?=$check ?></h2>
@@ -500,7 +509,13 @@ if(isset($_GET['annee']) && !empty($_GET['annee'])){
                                                                     <td>
                                                                         <table class="each-table">
                                                                             <tr class="each-table">
-                                                                                <td>Entrer client N° <?=$compteur ?></td>
+                                                                                <td>Entrer client N°  <?php
+																				$compteur = (int)($pdo -> query("SELECT MAX(compteur) AS compteur
+			FROM (SELECT c.client_id as client_id, compteur, num_polis, cin, nom, prenom, date_creation FROM abonnement a 
+			INNER JOIN polis p ON p.polis_id = a.polis_id 
+			INNER JOIN client c ON c.client_id = a.client_id) AS subquery
+			WHERE num_polis = '" . $polis['num_polis'] . "'") -> fetch())['compteur'] + 1; 
+			echo $compteur; ?></td>
                                                                                 <td class="separation"></td>
                                                                                 <td><input type="text" name="cin" value="" style="text-transform:uppercase" placeholder="CIN"></td>
                                                                             </tr>
