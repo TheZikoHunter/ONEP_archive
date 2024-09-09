@@ -121,7 +121,7 @@ for($i = $min_visual; $i <= $max_visual; $i++){
 
 $front = array();
 
-
+if(isset($visual) && !empty($visual)):
 foreach($visual as $num => $state){
     if(str_contains($state, 'start')){
         $periodique['state'] = explode('_', $state)[0];
@@ -136,6 +136,7 @@ foreach($visual as $num => $state){
         unset($periodique);
     }
 }
+endif;
 if(isset($type) && isset($start_index) && isset($end_index)){
 if(!isset($_COOKIE[$type . '_' . $start_index . '_' . $end_index]) && (isset($_POST['date_limits']) || isset($_POST['limits']))){
     setcookie(
