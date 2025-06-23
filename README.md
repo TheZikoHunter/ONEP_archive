@@ -1,45 +1,54 @@
-**===========>				Guide de travail avec l'application de l'archivage				<===========**
-**Installation et configuration sur des nouvelles machines**
-Cette application est dévelopée en utilisant le PHP 8.3. Quelques fonctionalités avancées peuvent ne pas être accessibles pour des versions
-précédentes. Pour éviter ce problème des versions, veuillez installer directement la version finale de Xampp.
-Après l'installation de Xampp, on est prêt d'accuellir notre application.
-La dérnière étape de la configuration s'agit de modifier le fichier C:\xampp\apache\conf\httpd.conf :
+## Installation et configuration
+Cette application a été développée avec PHP 8.3. Certaines fonctionnalités avancées peuvent ne pas être compatibles avec des versions antérieures de PHP. Pour éviter tout problème, veuillez installer la dernière version stable de XAMPP.
+## Étapes d’installation
+1. Installez XAMPP (version finale recommandée).
+2. Copiez le dossier de l’application dans le répertoire suivant : C:/xampp/htdocs/ONEP_archive
+3. Ouvrez le fichier de configuration Apache : C:\xampp\apache\conf\httpd.conf
+4. Modifiez les lignes suivantes pour définir le répertoire racine de l’application :
 
+		DocumentRoot "C:/xampp/htdocs/ONEP_archive"
+		<Directory "C:/xampp/htdocs/ONEP_archive">
+6. Assurez-vous que le dossier ONEP_archive contient le fichier index.php.
 
-	DocumentRoot "C:/xampp/htdocs/ONEP_archive"
-	<Directory "C:/xampp/htdocs/ONEP_archive">
+La configuration est maintenant terminée.
 
+## Utilisation de l’application
 
-Il s'agit de notre répertoire. Vérifie que le dossier ONEP_archive contient le fichier index.php. Maintenant, on a terminé la configuration.
+1. Lancez XAMPP et démarrez les services Apache et MySQL.
+2. Ouvrez votre navigateur et accédez à l’adresse : http://localhost (c’est ici que votre application est hébergée localement).
+3. Lors de la première utilisation, créez un compte administrateur pour la gestion des archives. Ce compte est unique et ne peut pas être modifié par la suite.
+4. Pour les connexions suivantes, il vous suffira de vous authentifier pour garantir la sécurité des données sensibles.
+5. Toutes les autres fonctionnalités sont expliquées dans l’interface utilisateur de l’application.
 
-**Comment travailler**
+## Maintenance et support
 
-1- Lancer Xampp
-2- Exécuter Apache et MySQL
-3- Allez au navigateur et ecrire " localhost ". C'est le domaine de votre application.
-4- Pour la première fois, vous devez ajouter l'admin de l'archive. Soyez clair et attentif. C'est inchangeable depuis l'application. Pour
-les tentatives ultérieures, une connexion seulement est require pour but de sécurité de données sensibles.
-5- Toutes les autres instructions vous les trouvez sur l'application.
+En cas de problème ou de difficulté, n’hésitez pas à me contacter par email à : douihzakaria@gmail.com.
 
-**Maintenance**
+Si nécessaire, nous pourrons organiser une communication par téléphone ou visioconférence afin de diagnostiquer les erreurs rencontrées.
 
-Si jamais vous rencontrer un problème ou une difficulté, veuillez me contacter sur e-mail "douihzakaria@gmail.com".
+Pour faciliter la résolution des problèmes, vous pouvez m’envoyer le dossier ONEP_archive compressé (ZIP, WinRAR ou autre), accompagné de l’export de la base de données MySQL.
 
-Au pire des cas, une communication est requise par téléphone ou par appel vidéo pour consultrer les erreurs.
+### Export de la base de données
 
-En tout cas, vous pouvez directement me communiquer le le dossier ONEP_archive sous format zip/winzip/rar tout au long avec la base de données
-MySQL que j'expliqura comment l'exporter maintenant via Google Drive ou sur mail simplement.
+1. Vérifiez que les services Apache et MySQL sont actifs.
+2. Accédez à l’interface phpMyAdmin via : http://localhost/phpmyadmin
+3. Sélectionnez la base de données nommée archive_onep dans le menu de gauche.
+4. Cliquez sur l’onglet Exporter.
+5. Choisissez l’option Personnalisée pour afficher toutes les options disponibles.
+6. Cliquez sur Exécuter pour télécharger le fichier archive_onep.sql.
 
-Pour exporter la base de données, vous devez vérifier que Apache et MySQL sont activés et puis allez à l'adresse localhost/phpmyadmin.
-Vous chercher à gauche la base de données "archive_onep" vous cliquez.
-Vous allez à la rubrique "Exporter" et vous choisissez l'option "Personnalisée, afficher toutes les options possibles".
+Veuillez inclure ce fichier SQL avec les fichiers de l’application lorsque vous me contactez.
 
-Vous cliquez sur exporter. Le fichier est téléchargé sous le nom "archive_onep.sql".
+### Restauration après correction
 
-Il faut inclure ce fichier avec les fichiers de l'application.
+Une fois le problème corrigé de mon côté, je vous enverrai les nouveaux fichiers.
 
-Une fois le problème est réglé de ma coté, je vais partager les nouveaux fichiers et cette fois il faut faire un "importer" (en séléctionnant
-le nouveau fichier sql) et remplacer les fichiers
-anciens par le nouveau dossier.
+Pour mettre à jour votre installation :
 
-**FIN**
+1. Importez la nouvelle base de données SQL via phpMyAdmin (onglet Importer).
+2. Remplacez les anciens fichiers de l’application par les nouveaux fournis.
+
+## Remerciements
+Merci d’utiliser cette application. Votre retour est précieux pour l’améliorer continuellement.
+
+Fin du guide.
